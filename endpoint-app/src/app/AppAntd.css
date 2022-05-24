@@ -1,0 +1,259 @@
+@import '~antd/dist/antd.css';
+.App {
+  text-align: center;
+}
+
+.ant-notification-notice-content{
+    color:white !important;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 40vmin;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+ 
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ant-select-selection {
+  background-color: transparent; /*Overriden property*/
+}
+
+.ant-select-disabled .ant-select-selection{
+	background: transparent;
+}
+
+.theme-root-1292498804 {
+	background: transparent !important; /*Overriden property*/
+}
+
+.ant-input{
+	background-color: transparent; /*Overriden property*/
+}
+
+span{
+	overflow:visible !important;
+}
+
+.ant-form-item-label {
+    text-align:left;
+
+}
+ .ant-input{
+ 	color:grey
+ }
+ .ant-breadcrumb-link{
+ color:silver
+ }
+ 
+ .ant-form-item-label label{
+ 	color:black;
+ 	font-weight:bold;
+ }
+ 
+ .ant-select-selection-selected-value {
+ 	color:silver
+ }
+ 
+ .dynamic-delete-button {
+  cursor: pointer;
+  position: relative;
+  top: 4px;
+  font-size: 24px;
+  color: #999;
+  transition: all .3s;
+}
+.dynamic-delete-button:hover {
+  color: #777;
+}
+.dynamic-delete-button[disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.ant-btn .anticon {
+	margin-left: 7px;
+	}
+ .ant-modal-header{
+    padding:10px !important;
+ 	background:transparent;
+ } 
+ 
+ .ant-modal-content{
+ 	background:transparent;
+ }
+ 
+  .ant-modal{
+ 	color: white;
+ }
+ 
+ .ant-modal-title{
+ 	/* color:#52c41a; */
+ 	color:yellow;
+ }
+ 
+  .ant-modal-body{
+ 	padding:10px 0 10px 24px;
+ }
+ .ant-form-inline .ant-form-item-with-help{
+    margin-bottom:0;
+ }
+
+.ant-notification-notice-message{
+    color:rgb(255, 212, 0);
+    font-weight:bold;
+}
+   
+.my-modal{
+ 	color: white !important;
+ 	padding-bottom:0px;
+    box-shadow: 0 0.5em 1em rgba(0, 0, 0, .3);
+ }
+
+ .my-modal .my-modal-body{
+  	color:inherit;
+  	background: inherit !important;
+  }
+
+  .my-modal .ant-modal-footer{
+    	color:inherit;
+    	background: inherit !important;
+    }
+
+ .my-modal::before {
+     content: "";
+     position: absolute;
+     top: 0;
+     right: 0;
+     bottom: 0;
+     left: 0;
+     background: black;
+     filter: blur(10px);
+ }
+
+.ant-modal-mask{
+    position:absolute;
+  	height:100%;
+  	z-index:10;
+  	overflow: visible;
+  }
+
+ .my-modal .my-modal-header{
+  	color: #f0e8e8;
+  	font-weight: bold;
+  	background:inherit !important;
+  	background-color:inherit !important;
+  }
+
+ .my-modal-content{
+    background:inherit !important;
+  }
+
+  .my-modal .ant-modal-content {
+      position: relative;
+      background: inherit !important;
+  }
+
+  .my-modal .ant-modal-content::before,
+  .my-modal .ant-modal-content::after {
+      content: "";
+      display: table;
+  }
+
+  .my-modal .ant-modal-content::before {
+    content: "";
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background: inherit;
+    filter: blur(30px);
+   }
+
+ 
+ thead[class*=".ant-modal"] .ant-modal-header{
+  background-color: yellow !important;
+  color: white;
+}
+ 
+ .ant-upload-list-picture .ant-upload-list-item-name{
+ 	color:#52c41a;
+ }
+
+ .ant-collapse > .ant-collapse-item > .ant-collapse-header {
+    padding-top:5px !important;
+ }
+
+ .ant-collapse > .ant-collapse-item > .ant-collapse-header .ant-collapse-arrow {
+    top:15px
+ }
+ .ant-select-tree-dropdown{
+    background:linear-gradient(to bottom,  #9e9eae 0%,  #C0c0d8 100%)  repeat scroll 0 0 rgba(0, 0, 0, 0);
+    font-weight:bold;
+ }
+ .ant-select-tree-dropdown .ant-select-dropdown-search{
+    background:transparent !important;
+ }
+
+ .ant-spin-container{
+    height:inherit;
+ }
+ .ant-spin-nested-loading {
+     height:inherit;
+ }
+
+.has-error .ant-form-explain{
+    color:#ac0505e6;
+	-webkit-font-smoothing: antialiased;
+    text-rendering: optimizelegibility;
+    -webkit-animation: myfirst 1s 98765432;
+    -moz-animation: myfirst 1s 98765432;
+    animation: myfirst 1s 98765432;
+    /*-webkit-animation: blink 1s step-end infinite;
+    -moz-animation: blink 1s step-end infinite;
+    -o-animation: blink 1s step-end infinite;
+    animation: blink 1s step-end infinite;*/
+}
+@-webkit-keyframes blink { 67% { opacity: 0 }}
+@-moz-keyframes blink {  67% { opacity: 0 }}
+@-o-keyframes blink {  67% { opacity: 0 }}
+@keyframes blink {  67% { opacity: 0 }}
+
+@-webkit-keyframes myfirst
+{
+    from {text-shadow: 1px 1px 2px rgb(255 255 255 /90%);}
+    to {text-shadow : none;}
+}
+
+@-moz-keyframes myfirst
+{
+    from {text-shadow: 1px 1px 2px rgb(255 255 255 /90%);}
+    to {text-shadow : none;}
+}
+@keyframes myfirst
+{
+    from {text-shadow: 1px 1px 2px rgb(255 255 255 /90%);}
+    to {text-shadow : none;}
+}

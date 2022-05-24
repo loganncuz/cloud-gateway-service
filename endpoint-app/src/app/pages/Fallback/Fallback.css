@@ -1,0 +1,53 @@
+.ant-drawer-wrapper-body{
+    overflow:hidden !important;
+}
+.level1 .ant-drawer-content {
+    background: linear-gradient(to bottom,  #F6f7ef 0%,  #E6f01b 100%)  repeat scroll 0 0 rgba(0, 0, 0, 0) !important;
+}
+.level1 .ant-drawer-header {
+    background: linear-gradient(to bottom,  #9e9eae 0%,  #C0c0d8 100%)  repeat scroll 0 0 rgba(0, 0, 0, 0) !important;
+}
+.level1 .ant-drawer-title{
+    font-weight:900 !important;
+}
+.level2 .ant-drawer-content {
+    background: linear-gradient(to bottom,  #0a1a89 0%, #F6f7ef  100%)  repeat scroll 0 0 rgba(0, 0, 0, 0) !important;
+}
+.level2 .ant-drawer-header {
+    background: linear-gradient(to bottom,  #9e9eae 0%,  #C0c0d8 100%)  repeat scroll 0 0 rgba(0, 0, 0, 0) !important;
+}
+.level2 .ant-drawer-title{
+    font-weight:900 !important;
+}
+.fi:before{
+    background-color: #cfbb62;
+}
+.fi:after{
+    border-color: transparent transparent transparent #a5720d;
+}
+
+.fi-content{
+    background-color: #cfbb62;
+}
+
+.radioCustom{
+    color: rgba(0, 0, 0, 0.65);
+    font-weight:bold !important;
+}
+
+.ant-radio-disabled .ant-radio-inner{
+    border-color:#1890ff !important;
+}
+.ant-radio-disabled .ant-radio-inner::after{
+    color:#1890ff !important;
+}
+
+.toolBar-disabled{
+    color:#bfbfbf !important;
+    cursor:not-allowed !important;
+}
+
+.toolBar-enabled{
+    pointer-events:visible;
+    cursor:default;
+}

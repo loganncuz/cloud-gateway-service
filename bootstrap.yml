@@ -1,0 +1,455 @@
+server:
+#  servlet:
+#    contextPath: /gateway
+  port: 8090
+  maxHttpHeaderSize: 102400
+#  tomcat:
+#  max-swallow-size: 1GB
+#  max-http-post-size: 1GB
+#  maxBodySize: 102400
+  ssl:
+    protocol: TLS
+    enabled-protocols: TLSv1.2
+    ciphers: TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_DHE_RSA_WITH_AES_256_GCM_SHA384,TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256
+    enabled: true
+    key-alias: tomcat
+    key-store-password: password
+    key-store: ./keystore.p12
+    key-store-type: PKCS12
+
+
+eureka:
+  instance:
+    preferIpAddress: true
+#    leaseRenewalIntervalInSeconds: 300000
+#    leaseExpirationDurationInSeconds: 30000000
+    hostname: localhost
+    securePort: ${server.port}
+    securePortEnabled: true
+    nonSecurePortEnabled: false
+    secureVirtualHostName: ${spring.application.name}
+    homePageUrl: https://${eureka.instance.hostname}:${server.port}/
+    statusPageUrl: https://${eureka.instance.hostname}:${server.port}/actuator/info
+    metadataMap:
+      management:
+        base-url: /
+        context-path: /actuator
+      user:
+        name: test
+        password: password
+  client:
+    enabled: true
+    preferIpAddress: true
+    registryFetchIntervalSeconds: 30
+#    lease-expiration-duration-in-seconds: 30000000
+#    lease-renewal-interval-in-seconds: 300000
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: https://test:password@localhost:9999/eureka/
+
+hystrix:
+  command:
+    fallbackcmd:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 3000000
+
+spring:
+  main:
+    web-application-type: reactive
+    allow-bean-definition-overriding: true
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100GB
+      max-request-size: 100GB
+  application:
+    name: reactive-gateway-service
+  profiles:
+    active: development
+    security:
+      user:
+      name: test
+      password: password
+  cloud:
+    gateway:
+      filter:
+        remove-non-proxy-headers:
+          headers:
+            - Proxy-Authenticate
+            - Proxy-Authorization
+            - Keep-Alive
+            - TE
+            - Trailer
+            - Transfer-Encoding
+      httpclient:
+        connect-timeout: 300000
+        response-timeout: 5m
+        ssl:
+          handshake-timeout-millis: 10000
+          close-notify-flush-timeout-millis: 3000
+          close-notify-read-timeout-millis: 0
+          useInsecureTrustManager: true
+      discovery:
+#        enabled: true
+        locator:
+          enabled: true
+          lower-case-service-id: true
+    routes:
+      - id: microservice-discovery
+        uri: https://localhost:9999
+        predicates:
+          - Path: /discovery/**
+        filters:
+          - SetResponseHeader: X-Frame-Options,SAMEORIGIN
+          - StripPrefix: 1
+          - name: Hystrix
+            args:
+              name: fallbackcmd
+              fallbackUri: forward:/fallback/microservice-discovery
+      - id: artemis-activeMQ
+        uri: http://localhost:8161
+        predicates:
+          - Path: /artemis/**
+        filters:
+          - SetResponseHeader: X-Frame-Options,SAMEORIGIN
+          - StripPrefix: 1
+          - name: Hystrix
+            args:
+              name: fallbackcmd
+              fallbackUri: forward:/fallback/microservice-discovery
+
+      - id: account-service-api
+        uri: lb://account-service
+        predicates:
+          - Path: /account/api/**
+        filters:
+          - name: Hystrix
+            args:
+              name: fallbackcmd
+              fallbackUri: forward:/hystrix/account-service
+
+      - id: account-service
+        uri: lb://account-service
+        predicates:
+          - Path: /account/**
+        filters:
+          - SetResponseHeader: X-Frame-Options,SAMEORIGIN
+          - name: Hystrix
+            args:
+              name: fallbackcmd
+              fallbackUri: forward:/fallback/account-service
+
+      - id: authorization-service-api
+        uri: lb://authorization-server
+        predicates:
+          - Path: /authorization/api/**
+        filters:
+          - name: Hystrix
+            args:
+              name: fallbackcmd
+              fallbackUri: forward:/hystrix/authorization-server
+
+      - id: authorization-service
+        uri: lb://authorization-server
+        predicates:
+          - Path: /authorization/**
+        filters:
+          - SetResponseHeader: X-Frame-Options,SAMEORIGIN
+          - name: Hystrix
+            args:
+              name: fallbackcmd
+              fallbackUri: forward:/fallback/authorization-server
+
+      - id: uim-task-scheduler-api
+        uri: lb://uim-task-scheduler
+        predicates:
+          - Path: /uim.task/api/**
+        filters:
+          - name: Hystrix
+            args:
+              name: fallbackcmd
+              fallbackUri: forward:/hystrix/uim-task-scheduler
+
+      - id: uim-task-scheduler
+        uri: lb://uim-task-scheduler
+        predicates:
+          - Path: /uim.task/**
+        filters:
+          - SetResponseHeader: X-Frame-Options,SAMEORIGIN
+          - name: Hystrix
+            args:
+              name: fallbackcmd
+              fallbackUri: forward:/hystrix/uim-task-scheduler
+
+      - id: document-service-api
+        uri: lb://uim-document-service
+        predicates:
+          - Path: /uim.document/api/**
+        filters:
+          - name: Hystrix
+            args:
+              name: fallbackcmd
+              fallbackUri: forward:/hystrix/uim-document-service
+
+      - id: document-service
+        uri: lb://uim-document-service
+        predicates:
+          - Path: /uim.document/**
+        filters:
+          - SetResponseHeader: X-Frame-Options,SAMEORIGIN
+          - name: Hystrix
+            args:
+              name: fallbackcmd
+              fallbackUri: forward:/fallback/uim-document-service
+
+      - id: ingredients-fallback
+        uri: lb://REACTIVE-GATEWAY-SERVICE
+        predicates:
+          - Path: /fallback/**,/hystrix/**
+          - Method: GET,POST,DELETE,PUT,OPTIONS
+        filters:
+#          - RewritePath: /self/(?<segment>.*),/#/$\{segment}
+          - StripPrefix: 1
+          - name: FallbackHeaders
+            args:
+              executionExceptionTypeHeaderName: Test-Header
+
+      - id: uim-custom-service-api
+        uri: lb://uim-api-custom-service
+        predicates:
+          - Path: /uim.api.custom/**
+        filters:
+#          - name: CircuitBreaker
+#            args:
+#              name: CircuitBreaker
+#              fallbackUri: forward:/hystrix/uim-api-custom-service
+#          - name: Hystrix
+#            args:
+#              name: fallbackcmd
+#              fallbackUri: forward:/hystrix/uim-api-custom-service
+#        metadata:
+#          response-timeout: 3000000
+#          connect-timeout: 3000000
+          - name: Retry
+            args:
+              retries: 20
+              statuses: BAD_GATEWAY,INTERNAL_SERVER_ERROR
+              methods: GET,POST
+              exceptions: java.io.IOException,java.util.concurrent.TimeoutException,java.net.ConnectException
+#              backoff: disabled
+              backoff:
+                firstBackoff: 150ms
+                maxBackoff: 75000s
+                factor: 2
+                basedOnPreviousValue: false
+
+      - id: uim-custom-service-dev-api
+        uri: lb://uim-api-custom-service
+        predicates:
+          - Path: /uim.api.custom.dev/**
+        filters:
+          - name: Hystrix
+            args:
+              name: fallbackcmd
+              fallbackUri: forward:/hystrix/uim-api-custom-service-dev
+
+      - id: dt-custom-service-api
+        uri: lb://dt-api-custom-service
+        predicates:
+          - Path: /dt.api.custom/**
+        filters:
+          - name: Hystrix
+            args:
+              name: fallbackcmd
+              fallbackUri: forward:/hystrix/dt-api-custom-service
+
+      - id: dt-custom-service-dev-api
+        uri: lb://dt-api-custom-service
+        predicates:
+          - Path: /dt.api.custom.dev/**
+        filters:
+          - name: Hystrix
+            args:
+              name: fallbackcmd
+              fallbackUri: forward:/hystrix/dt-api-custom-service-dev
+
+#      - id: custom-job-manager-api
+#        uri: lb://custom-job-manager
+#        predicates:
+#          - Path: /custom.job.manager/api/**
+#        filters:
+##          - name: CircuitBreaker
+##            args:
+##              name: myCircuitBreaker
+##              fallbackUri: forward:/hystrix/custom-job-manager
+#          - name: Hystrix
+#            args:
+#              name: fallbackcmd
+#              fallbackUri: forward:/hystrix/custom-job-manager
+
+      - id: custom-job-manager
+        uri: lb://custom-job-manager
+        predicates:
+          - Path: /custom.job.manager/**
+          - Method: GET,POST,DELETE,PUT,OPTIONS
+        filters:
+          - SetResponseHeader: X-Frame-Options,SAMEORIGIN
+#          - name: Hystrix
+#            args:
+#              name: fallbackcmd
+#              fallbackUri: forward:/fallback/custom-job-manager
+
+#      - id: custom.job.manager#web-socket
+#        uri: lb://custom-job-manager
+#        predicates:
+#          - Path: /custom.job/sock.web.socket,/custom.job/web.socket
+#        filters:
+#          - RewritePath: '/custom.job/(?<segment>.*),/custom.job.manager/$\{segment}'
+#          - StripPrefix: 1
+#          - name: Hystrix
+#            args:
+#              name: fallbackcmd
+#              fallbackUri: forward:/hystrix/custom-job-manager
+
+      - id: uim-robot-api
+        uri: lb://uim-robot-service
+        predicates:
+          - Path: /uim.api.robot/api/**
+        filters:
+          - name: Hystrix
+            args:
+              name: fallbackcmd
+              fallbackUri: forward:/hystrix/uim-robot-service
+
+      - id: uim-robot
+        uri: lb://uim-robot-service
+        predicates:
+          - Path: /uim.api.robot/**
+        filters:
+          - SetResponseHeader: X-Frame-Options,SAMEORIGIN
+          - name: Hystrix
+            args:
+              name: fallbackcmd
+              fallbackUri: forward:/fallback/uim-robot-service
+
+      - id: sample-route
+        uri: lb://REACTIVE-GATEWAY-SERVICE
+        predicates:
+          - Path: /test1,/test2
+          - Method: GET,POST,DELETE,PUT,OPTIONS
+          - Host: /test1,/test2
+          - Header: webSocket
+          - Query: /test1,/test2
+          - Cookie: webSocket,y.u
+          - RemoteAddr: 192.168.1.1/24,192.168.1.30/24
+          - After: 2017-01-20 17:42:47
+          - Before: 2017-01-20 17:42:47
+          - Between: 2017-01-20 17:42:47,2017-01-20 17:58:47
+          - Weight: group1,90
+        filters:
+          - PreserveHostHeader:
+          - SaveSession:
+          - name: FallbackHeaders
+            args:
+              executionExceptionTypeHeaderName: Test-Header
+          - name: Retry
+            args:
+              retries: 3
+              statuses: BAD_GATEWAY
+              methods: GET,POST
+              exceptions: java.io.IOException,java.util.concurrent.TimeoutException,java.net.ConnectException
+              backoff:
+                firstBackoff: 10ms
+                maxBackoff: 100ms
+                factor: 2
+                basedOnPreviousValue: false
+          - name: RequestSize
+            args:
+              maxSize: 5000000
+          - name: SetRequestHostHeader
+            args:
+              host: example.org
+          - RewritePath: /red/(?<segment>.*), /$\{segment}
+          - RewriteLocationResponseHeader: AS_IN_REQUEST, Location, ,
+          - RewriteResponseHeader: X-Response-Red,password=[^&]+,password=***
+          - SetStatus: 401
+          - SetResponseHeader: X-Request-Red, Blue
+          - RedirectTo: 302,https://acme.org
+          - RemoveResponseHeader: X-Request-Foo
+          - name: RequestRateLimiter
+            args:
+              redis-rate-limiter.replenishRate: 10
+              redis-rate-limiter.burstCapacity: 20
+              redis-rate-limiter.requestedTokens: 1
+          - MapRequestHeader: Blue, X-Request-Red
+          - PrefixPath: /mypath
+          - ModifyRequestBody: customBody
+          - name: CircuitBreaker
+            args:
+              name: myCircuitBreaker
+              fallbackUri: forward:/fallback
+              statusCodes:
+                - 500
+                - "NOT_FOUND"
+          - name: SetRequestHostHeader
+            args:
+              host: example.org
+
+    default-filters:
+      - SetResponseHeader: X-Frame-Options,SAMEORIGIN
+
+    globalcors:
+      cors-configurations:
+        '[/**]':
+          allowedOrigins: ["*"]
+          allowedMethods: ["*"]
+          allowedHeaders: "*"
+#          allowedOrigins: ["*","https://localhost:8090"]
+#          allowedMethods: ["GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH"]
+#          allowedHeaders: "*"
+#          exposedHeaders": "*"
+          allowCredentials: true
+#    loadbalancer:
+#      ribbon:
+#        enabled: false
+    config:
+      uri: https://localhost:8888
+      username: root
+      password: s3cr3t
+    metrics:
+      enabled: true
+  webflux:
+    static-path-pattern: classpath:/META-INF/resources/,classpath:/resources/,classpath:/BOOT-INF/classes/public/,classpath:/resources/public/,classpath:/public/
+
+logging:
+  file: ../log_app/${spring.application.name}.log
+  pattern:
+    file: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID}){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx"
+#  group:
+#    apache: org.apache
+#    logging.group.error: com.ncuz.gateway.Application,org.exampledriven.eureka
+#    logging.group.debug: com.ncuz.gateway.Application,org.exampledriven.eureka.customer.shared.CustomerServiceFeignClient
+#    logging.group.warn: com.ncuz.gateway.Application,java.lang.RuntimeException
+#    logging.group.info: com.ncuz.gateway.Application
+#    logging.group.trace: org.apache
+  level:
+    org.springframework.web: TRACE
+#    com.ncuz.gateway.Application: DEBUG
+#    java.lang.RuntimeException: ERROR
+#    com.ncuz.gateway: TRACE
+#    org.apache: TRACE
+#    apache: TRACE
+
+management:
+  ssl:
+    enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: hystrix.stream,info,health
+  endpoint:
+    logfile:
+      external_file: ./log_app/${spring.application.name}.log

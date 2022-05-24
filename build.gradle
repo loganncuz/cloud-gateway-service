@@ -1,0 +1,125 @@
+buildscript {
+    ext {
+        springBootVersion = '2.3.5.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+//        maven {
+//            url "https://plugins.gradle.org/m2/"
+//        }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+//        classpath "gradle.plugin.com.github.alexeylisyutenko:windows-service-plugin:1.1.0"
+    }
+}
+//plugins {
+//    id "com.github.alexeylisyutenko.windows-service-plugin" version "1.1.0"
+//}
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'java-library'
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'application'
+mainClassName = 'com.ncuz.cloud.gateway.service.Application'
+
+apply plugin: 'io.spring.dependency-management'
+
+configurations {
+    // configuration that holds jars to include in the jar
+    deplib
+    all {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    }
+}
+
+group 'com.ncuz'
+//version '1.0-SNAPSHOT'
+
+jar {
+    archivesBaseName = 'reactive-gateway-service'
+    manifest {
+        attributes(
+                'Main-Class': 'org.springframework.boot.loader.JarLauncher',
+                'Class-Path': 'com.ncuz.cloud.gateway.service'
+        )
+    }
+}
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    set('springCloudVersion', "Hoxton.SR3")
+//     set('springCloudVersion', "Greenwich.SR4")
+//    set('springBootVersion',  '2.1.9.RELEASE')
+    set('springBootVersion',  '2.3.5.RELEASE')
+    set('log4j2.version',  '2.17.0')
+}
+dependencyManagement {
+    imports { mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"}
+    imports { mavenBom "org.springframework.boot:spring-boot-starter-parent:${springBootVersion}"}
+}
+
+dependencies {
+    implementation "org.springframework.cloud:spring-cloud-starter-config"
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "org.springframework.cloud:spring-cloud-starter-netflix-eureka-client"
+    implementation "org.springframework.cloud:spring-cloud-starter-gateway"
+    implementation "org.springframework.cloud:spring-cloud-loadbalancer"
+    implementation "org.springframework.cloud:spring-cloud-starter-netflix-hystrix"
+    implementation "org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j"
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+//    implementation "org.springframework.boot:spring-boot-starter-security"
+    implementation "org.springframework.boot:spring-boot-starter-webflux"
+//    implementation group: 'io.micrometer', name: 'micrometer-registry-prometheus', version: '1.3.5'
+
+
+//    implementation "org.springframework.cloud:spring-cloud-starter-oauth2"
+    // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-bootstrap
+//    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.0.4'
+
+    implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
+    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.10.0'
+//    implementation('com.sun.xml.bind:jaxb-impl:2.1.2')
+    // https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api
+    implementation group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1'
+
+
+
+    // logger build up log4j2
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-log4j2', version: '2.5.3' //new updated
+    // https://mvnrepository.com/artifact/com.lmax/disruptor
+    implementation group: 'com.lmax', name: 'disruptor', version: '3.4.4'
+    // https://mvnrepository.com/artifact/net.sf.trove4j/trove4j
+    implementation group: 'net.sf.trove4j', name: 'trove4j', version: '3.0.3'
+    implementation 'org.apache.logging.log4j:log4j-bom:2.17.0'
+    api(enforcedPlatform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")) {
+        exclude(group: "org.apache.logging.log4j")
+    }
+    api(platform("org.apache.logging.log4j:log4j-bom:2.17.0")) {
+        because "https://nvd.nist.gov/vuln/detail/CVE-2021-44228"
+    }
+
+    // https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
+//    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5'
+    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.1'
+
+
+//    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+
+    deplib  files('C:/DEVELOPER/libs/log4j2-helper.jar')
+//    deplib  files('../../libs/xml-reader.jar')
+    deplib  files('C:/DEVELOPER/ws-uim/encryption/build/libs/consolidation.jar')
+    configurations.implementation.extendsFrom(configurations.deplib)
+}
+
+
+test {
+    useJUnitPlatform()
+}

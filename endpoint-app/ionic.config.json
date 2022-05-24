@@ -1,0 +1,7 @@
+{
+  "name": "endpoint-app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}

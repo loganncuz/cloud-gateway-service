@@ -1,0 +1,41 @@
+#spring:
+#  #  main:
+#  #    web-application-type: reactive
+#  #    allow-bean-definition-overriding: true
+#  servlet:
+#    multipart:
+#      enabled: true
+#      max-file-size: 100GB
+#      max-request-size: 100GB
+#  application:
+#    name: reactive-gateway-service
+#  profiles:
+#    active: development
+#    security:
+#      user:
+#        name: test
+#        password: password
+#  cloud:
+#    gateway:
+#      httpclient:
+#        ssl:
+#          #          handshake-timeout-millis: 10000
+#          #          close-notify-flush-timeout-millis: 3000
+#          #          close-notify-read-timeout-millis: 0
+#          useInsecureTrustManager: true
+#      discovery:
+#        enabled: true
+#        locator:
+#          enabled: true
+#          lower-case-service-id: true
+#    default-filters:
+#      - DedupeResponseHeader: Access-Control-Allow-Credentials Access-Control-Allow-Origin Access-Control-Allow-Origin-Frame
+#
+#    globalcors:
+#      cors-configurations:
+#        '[/**]':
+#          allowedOrigins: ["*","https://localhost:8090"]
+#          allowedMethods: ["GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH"]
+#          allowedHeaders: "*"
+#          exposedHeaders": "*"
+#          allowCredentials: true
